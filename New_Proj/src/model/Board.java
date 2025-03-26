@@ -107,11 +107,11 @@ public class Board {
     public String getDisplayInfo() {
         // 게시판 타입, 게시물 번호, 제목, 유저명, 날짜, 조회수 형식
         return String.format("%-6s%03d. %-40s%-10s%-12s%d", 
-                boardType, boardId, title, userName, regDate, viewCount);
+                boardType, boardId, title, memberId, regDate, viewCount);
     }
     
     @Override
     public String toString() {
-        return "제목: " + title + "\n작성자: " + userName + "\n내용: " + content;
+        return "제목: " + title + "\n작성자: " + memberId + "\n내용: " + content;
     }
 }

@@ -83,11 +83,11 @@ public class Comment {
     
     // 댓글 표시에 사용할 메소드
     public String getDisplayInfo() {
-        return commentId + " | " + userName + " | " + content;
+        return commentId + " | " + memberId + " | " + content;
     }
     
     @Override
     public String toString() {
-        return commentId + " | " + userName + " | " + content;
+        return commentId + " | " + memberId + " | " + content;
     }
 }

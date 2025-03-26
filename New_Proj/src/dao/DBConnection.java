@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import util.ConsoleUtil;
+
 /**
  * 데이터베이스 연결을 관리하는 클래스
  */
@@ -77,6 +79,31 @@ public class DBConnection {
             }
         } catch (SQLException e) {
             System.out.println("롤백 오류: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 애플리케이션을 안전하게 종료하는 메소드
+     */
+    public static void exitApplication() {
+        System.out.println("프로그램을 종료합니다...");
+        
+        try {
+            // 데이터베이스 연결 종료
+            DBConnection.closeConnection();
+            
+            // 콘솔 리소스 정리
+            ConsoleUtil.closeScanner();
+            
+            System.out.println("모든 리소스가 정상적으로 정리되었습니다.");
+            System.out.println("프로그램이 종료되었습니다.");
+            
+            // 시스템 종료
+            System.exit(0);
+        } catch (Exception e) {
+            System.err.println("프로그램 종료 중 오류 발생: " + e.getMessage());
+            // 오류가 있어도 강제 종료
+            System.exit(1);
         }
     }
 }

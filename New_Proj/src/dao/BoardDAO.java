@@ -42,6 +42,7 @@ public class BoardDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -89,6 +90,7 @@ public class BoardDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -138,6 +140,7 @@ public class BoardDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -177,6 +180,7 @@ public class BoardDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -220,6 +224,7 @@ public class BoardDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -249,36 +254,58 @@ public class BoardDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
         }
     }
     
-    // 게시글 시퀀스 생성 (시작할 때 한 번 실행)
     public void createBoardSequence() {
         Connection conn = null;
         Statement stmt = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
         
         try {
             conn = DBConnection.getConnection();
             stmt = conn.createStatement();
             
             // 시퀀스가 이미 존재하는지 확인
-            ResultSet rs = conn.getMetaData().getTables(null, "USER", "BOARD_SEQ", null);
-            if (!rs.next()) {
-                // 시퀀스 생성
-                String sql = "CREATE SEQUENCE BOARD_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE";
-                stmt.executeUpdate(sql);
-                DBConnection.commit();
+            try {
+                // 기존 시퀀스가 있다면 삭제
+                stmt.executeUpdate("DROP SEQUENCE BOARD_SEQ");
+            } catch (SQLException e) {
+                // 시퀀스가 없으면 무시 (처음 실행 시)
             }
+            
+            // 현재 테이블의 최대 ID 값 조회
+            int startValue = 1; // 기본 시작값
+            String maxIdSql = "SELECT NVL(MAX(board_id), 0) + 1 FROM tbl_board";
+            pstmt = conn.prepareStatement(maxIdSql);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                startValue = rs.getInt(1);
+            }
+            
+            // 최대값+1에서 시작하는 새 시퀀스 생성
+            String createSeqSql = "CREATE SEQUENCE BOARD_SEQ START WITH " + startValue + 
+                                  " INCREMENT BY 1 NOCACHE NOCYCLE";
+            stmt.executeUpdate(createSeqSql);
+            
+            DBConnection.commit();
+            System.out.println("BOARD_SEQ 시퀀스가 " + startValue + "에서 시작하도록 설정되었습니다.");
             
         } catch (SQLException e) {
             DBConnection.rollback();
-            System.out.println("게시글 시퀀스 생성 오류: " + e.getMessage());
+            System.out.println("게시판 시퀀스 생성 오류: " + e.getMessage());
         } finally {
             try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
                 if (stmt != null) stmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }

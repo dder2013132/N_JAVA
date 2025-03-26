@@ -1,6 +1,8 @@
 package ui;
 
+import dao.DBConnection;
 import dao.MemberDAO;
+
 import model.Member;
 import util.ConsoleUtil;
 import util.ValidationUtil;
@@ -10,10 +12,12 @@ import util.ValidationUtil;
  */
 public class LoginUI {
     private MemberDAO memberDAO;
-    
+    int uiwidth = 80;
     public LoginUI() {
         this.memberDAO = new MemberDAO();
     }
+    
+    
     
     /**
      * 로그인 화면을 표시하고 처리하는 메소드
@@ -23,11 +27,16 @@ public class LoginUI {
         Member member = null;
         
         while (true) {
-            ConsoleUtil.printHeader("로그인");
-            System.out.println("1. 로그인 2. 회원가입");
+            ConsoleUtil.clearScreen();
+            ConsoleUtil.printHeader("Game Shop & Review");
+            ConsoleUtil.printMessage(ConsoleUtil.YELLOW + ConsoleUtil.centerText("환영합니다! 로그인하거나 회원가입해주세요.", uiwidth + 10)  + ConsoleUtil.RESET);
+            ConsoleUtil.printDivider();
+            ConsoleUtil.printMessage("1. " + ConsoleUtil.GREEN + "로그인" + ConsoleUtil.RESET);
+            ConsoleUtil.printMessage("2. " + ConsoleUtil.BLUE + "회원가입" + ConsoleUtil.RESET);
+            ConsoleUtil.printMessage("3. " + ConsoleUtil.RED + "종료" + ConsoleUtil.RESET);
             ConsoleUtil.printDivider();
             
-            int choice = ConsoleUtil.readInt("선택 >> ");
+            int choice = ConsoleUtil.readInt("선택 " + ConsoleUtil.CYAN + "▶ " + ConsoleUtil.RESET);
             
             switch (choice) {
                 case 1:
@@ -40,10 +49,15 @@ public class LoginUI {
                     boolean registered = processRegistration();
                     if (registered) {
                         ConsoleUtil.printSuccess("회원가입이 완료되었습니다. 로그인 화면으로 돌아갑니다.");
+                        ConsoleUtil.pressEnterToContinue();
                     }
+                    break;
+                case 3:
+                    DBConnection.exitApplication(); // 프로그램 종료
                     break;
                 default:
                     ConsoleUtil.printError("잘못된 선택입니다. 다시 선택해주세요.");
+                    ConsoleUtil.pressEnterToContinue();
             }
         }
     }

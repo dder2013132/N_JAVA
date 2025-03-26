@@ -29,22 +29,37 @@ public class ProductPurchaseUI {
      * 상품 목록을 표시하는 메소드
      */
     public void showProductList() {
+        ConsoleUtil.clearScreen();
         List<Product> productList = productDAO.getProductList();
         
-        ConsoleUtil.printDivider();
+        ConsoleUtil.printHeader("게임 상품 목록");
         
         if (productList.isEmpty()) {
-            ConsoleUtil.printMessage("판매 중인 상품이 없습니다.");
+            ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "판매 중인 상품이 없습니다." + ConsoleUtil.RESET);
         } else {
+            ConsoleUtil.printMessage(ConsoleUtil.CYAN + "번호  |  장르         |  게임명                |  판매자      |   가격         |  재고" + ConsoleUtil.RESET);
+            ConsoleUtil.printDivider();
+            
             for (Product product : productList) {
-                ConsoleUtil.printMessage(product.getDisplayInfo());
+                String gameName = limitString(product.getProductName(), 20);
+                String category = limitString(product.getCategory(), 10);
+                
+                ConsoleUtil.printMessage(String.format("%03d  |  %-10s |  %-16s  |  %-8s  | %,10d원  |  %d", 
+                    product.getProductId(), category, gameName, product.getSellerName(), product.getPrice(), product.getStockQuantity()));
+                
+                // 재고가 부족한 경우 표시
+                if (product.getStockQuantity() <= 0) {
+                    ConsoleUtil.printMessage(ConsoleUtil.RED + "        ⚠️ 재고 부족! 상품이 곧 입고될 예정입니다." + ConsoleUtil.RESET);
+                }
             }
         }
         
         ConsoleUtil.printDivider();
-        ConsoleUtil.printMessage("번호입력시 게임판매 게시글로 이동 q. 돌아가기");
+        ConsoleUtil.printMessage("상품 번호 입력: 해당 상품 상세 정보");
+        ConsoleUtil.printMessage(ConsoleUtil.RED + "q" + ConsoleUtil.RESET + ": 돌아가기");
+        ConsoleUtil.printDivider();
         
-        String input = ConsoleUtil.readString("선택 >> ");
+        String input = ConsoleUtil.readString("선택 " + ConsoleUtil.CYAN + "▶ " + ConsoleUtil.RESET);
         
         if (input.equalsIgnoreCase("q")) {
             return; // 메인 메뉴로 돌아가기
@@ -54,8 +69,26 @@ public class ProductPurchaseUI {
                 showProductDetail(productId);
             } catch (NumberFormatException e) {
                 ConsoleUtil.printError("올바른 입력이 아닙니다. 다시 선택해주세요.");
+                ConsoleUtil.pressEnterToContinue();
             }
         }
+        
+        // 상품 목록으로 돌아가기
+        showProductList();
+    }
+    
+    /**
+     * 문자열을 지정된 길이로 제한하는 메소드
+     * @param str 제한할 문자열
+     * @param maxLength 최대 길이
+     * @return 제한된 문자열
+     */
+    private String limitString(String str, int maxLength) {
+        if (str == null) return "";
+        if (str.length() <= maxLength) {
+            return str;
+        }
+        return str.substring(0, maxLength - 3) + "...";
     }
     
     /**
@@ -63,30 +96,62 @@ public class ProductPurchaseUI {
      * @param productId 상품 ID
      */
     private void showProductDetail(int productId) {
+        ConsoleUtil.clearScreen();
         Product product = productDAO.getProductById(productId);
         
         if (product == null) {
             ConsoleUtil.printError("존재하지 않는 상품입니다.");
+            ConsoleUtil.pressEnterToContinue();
             return;
         }
         
+        ConsoleUtil.printHeader("상품 상세 정보");
+        
+        // 상품 상세 정보
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "게임명: " + ConsoleUtil.RESET + product.getProductName());
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "장르: " + ConsoleUtil.RESET + product.getCategory() + 
+                              ConsoleUtil.BLUE + "  |  " + ConsoleUtil.YELLOW + "판매자: " + 
+                              ConsoleUtil.RESET + product.getSellerName() + 
+                              ConsoleUtil.BLUE + "  |  " + ConsoleUtil.YELLOW + "가격: " + 
+                              ConsoleUtil.RESET + String.format("%,d원", product.getPrice()));
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "재고: " + ConsoleUtil.RESET + 
+                              (product.getStockQuantity() > 0 ? product.getStockQuantity() + "개" : 
+                               ConsoleUtil.RED + "품절" + ConsoleUtil.RESET));
         ConsoleUtil.printDivider();
-        ConsoleUtil.printMessage(product.getDetailInfo());
+        
+        // 상품 설명
+        ConsoleUtil.printMessage(ConsoleUtil.GREEN + "▶ 상품 설명" + ConsoleUtil.RESET);
+        String[] descLines = product.getDescription().split("\n");
+        for (String line : descLines) {
+            ConsoleUtil.printMessage(line);
+        }
+        
         ConsoleUtil.printDivider();
         
-        ConsoleUtil.printMessage("1. 구매 2. 돌아가기");
+        if (product.getStockQuantity() > 0) {
+            ConsoleUtil.printMessage("1. " + ConsoleUtil.GREEN + "구매하기" + ConsoleUtil.RESET + "   " + 
+                                  "2. " + ConsoleUtil.RED + "돌아가기" + ConsoleUtil.RESET);
+        } else {
+            ConsoleUtil.printMessage(ConsoleUtil.RED + "현재 품절된 상품입니다." + ConsoleUtil.RESET);
+            ConsoleUtil.printMessage("1. " + ConsoleUtil.RED + "돌아가기" + ConsoleUtil.RESET);
+        }
         
-        int choice = ConsoleUtil.readInt("선택 >> ");
+        int choice = ConsoleUtil.readInt("선택 " + ConsoleUtil.CYAN + "▶ " + ConsoleUtil.RESET);
         
-        switch (choice) {
-            case 1:
-                purchaseProduct(product);
-                break;
-            case 2:
-                // 상품 목록으로 돌아가기
-                break;
-            default:
-                ConsoleUtil.printError("잘못된 선택입니다.");
+        if (product.getStockQuantity() > 0) {
+            switch (choice) {
+                case 1:
+                    purchaseProduct(product);
+                    break;
+                case 2:
+                    return; // 상품 목록으로 돌아가기
+                default:
+                    ConsoleUtil.printError("잘못된 선택입니다.");
+                    ConsoleUtil.pressEnterToContinue();
+                    showProductDetail(productId); // 다시 보기
+            }
+        } else {
+            return; // 상품 목록으로 돌아가기
         }
     }
     

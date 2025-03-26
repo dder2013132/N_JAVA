@@ -130,8 +130,8 @@ public class Product {
     // 상품 목록에 사용할 메소드
     public String getDisplayInfo() {
         // 번호, 장르, 게임명, 유저명, 날짜, 가격, 판매요청 수 형식
-        return String.format("%03d | %-10s | %-20s | %-10s | %-12s | %,d원 | %d", 
-                productId, category, productName, sellerName, regDate, price, requestCount);
+        return String.format("%03d | %-10s | %-20s | %-10s | %-12s | %,d원 | %d개 | %d회", 
+                productId, category, productName, sellerName, regDate, price, stockQuantity ,requestCount);
     }
     
     // 상품 상세 정보에 사용할 메소드

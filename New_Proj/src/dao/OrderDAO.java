@@ -53,6 +53,7 @@ public class OrderDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -81,8 +82,13 @@ public class OrderDAO {
             int result = pstmt.executeUpdate();
             
             if (result > 0) {
-                DBConnection.commit();
-                success = true;
+                // 요청 수 증가
+                if (increaseRequestCount(orderDetail.getProductId())) {
+                    DBConnection.commit();
+                    success = true;
+                } else {
+                    DBConnection.rollback();
+                }
             } else {
                 DBConnection.rollback();
             }
@@ -93,6 +99,7 @@ public class OrderDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -140,6 +147,7 @@ public class OrderDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -186,12 +194,60 @@ public class OrderDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
         }
         
         return orderDetailList;
+    }
+    
+    public List<Order> getOrdersByProductId(int productId) {
+    	Connection conn = null;
+    	PreparedStatement pstmt = null;
+    	ResultSet rs = null;
+    	List<Order> orderList = new ArrayList<>();
+    	
+    	try {
+    		conn = DBConnection.getConnection();
+    		
+    		String sql = "SELECT DISTINCT o.*, m.user_name " +
+                    "FROM tbl_order o " +
+                    "JOIN tbl_order_detail od ON o.order_id = od.order_id " +
+                    "JOIN tbl_member m ON o.member_id = m.member_id " +
+                    "WHERE od.product_id = ? " +
+                    "ORDER BY o.order_date DESC ";
+    		pstmt = conn.prepareStatement(sql);
+    		pstmt.setInt(1, productId);
+    		
+    		rs = pstmt.executeQuery();
+    		
+    		while(rs.next()) {
+    			Order order = new Order();
+                order.setOrderId(rs.getInt("order_id"));
+                order.setMemberId(rs.getString("member_id"));
+                order.setOrderDate(rs.getDate("order_date"));
+                order.setTotalAmount(rs.getInt("total_amount"));
+                order.setPaymentMethod(rs.getString("payment_method"));
+                order.setDeliveryStatus(rs.getString("delivery_status"));
+                order.setUserName(rs.getString("user_name"));
+    			
+    			orderList.add(order);
+    		}
+    	} catch (SQLException e) {
+    		System.out.println("상품별 주문 목록 조회 오류: " + e.getMessage());
+    	} finally {
+    		try {
+    			if (rs != null) rs.close();
+    			if (pstmt != null) pstmt.close();
+    			DBConnection.closeConnection();
+    		} catch (SQLException e) {
+    			System.out.println("리소스 닫기 오류: " + e.getMessage());
+    		}
+    	}
+    	
+    	return orderList;
     }
     
     // 배송 상태 변경
@@ -223,6 +279,7 @@ public class OrderDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -255,7 +312,7 @@ public class OrderDAO {
                 return false; // 주문이 존재하지 않음
             }
             
-            // 주문에 포함된 상품의 재고 복원
+            // 주문에 포함된 상품의 재고 복원 및 요청 수 감소
             String getOrderDetailsSql = "SELECT product_id, quantity FROM tbl_order_detail WHERE order_id = ?";
             pstmt = conn.prepareStatement(getOrderDetailsSql);
             pstmt.setInt(1, orderId);
@@ -272,6 +329,9 @@ public class OrderDAO {
                 updateStmt.setInt(2, productId);
                 updateStmt.executeUpdate();
                 updateStmt.close();
+                
+                // 요청 수 감소
+                decreaseRequestCount(productId);
             }
             
             // 주문 상세 삭제
@@ -297,9 +357,11 @@ public class OrderDAO {
         } catch (SQLException e) {
             DBConnection.rollback();
             System.out.println("주문 취소 오류: " + e.getMessage());
+            e.printStackTrace(); // 디버깅을 위한 상세 오류 출력
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -308,41 +370,168 @@ public class OrderDAO {
         return success;
     }
     
-    // 주문 시퀀스 생성 (시작할 때 한 번 실행)
     public void createOrderSequences() {
         Connection conn = null;
         Statement stmt = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
         
         try {
             conn = DBConnection.getConnection();
             stmt = conn.createStatement();
             
-            // 주문 시퀀스
-            ResultSet rs = conn.getMetaData().getTables(null, "USER", "ORDER_SEQ", null);
-            if (!rs.next()) {
-                String sql = "CREATE SEQUENCE ORDER_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE";
-                stmt.executeUpdate(sql);
+            // 시퀀스가 이미 존재하는지 확인
+            try {
+                // 기존 시퀀스가 있다면 삭제
+                stmt.executeUpdate("DROP SEQUENCE ORDER_SEQ");
+                stmt.executeUpdate("DROP SEQUENCE ORDER_DETAIL_SEQ");
+            } catch (SQLException e) {
+                // 시퀀스가 없으면 무시 (처음 실행 시)
             }
             
-            // 주문 상세 시퀀스
-            rs = conn.getMetaData().getTables(null, "USER", "ORDER_DETAIL_SEQ", null);
-            if (!rs.next()) {
-                String sql = "CREATE SEQUENCE ORDER_DETAIL_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE";
-                stmt.executeUpdate(sql);
+            // 현재 테이블의 최대 ID 값 조회
+            int startValue = 1; // 기본 시작값
+            String maxIdSql = "SELECT NVL(MAX(order_id), 0) + 1 FROM tbl_order";
+            pstmt = conn.prepareStatement(maxIdSql);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                startValue = rs.getInt(1);
             }
+            
+            // 최대값+1에서 시작하는 새 시퀀스 생성
+            String createSeqSql = "CREATE SEQUENCE ORDER_SEQ START WITH " + startValue + 
+                                  " INCREMENT BY 1 NOCACHE NOCYCLE";
+            stmt.executeUpdate(createSeqSql);
+            
+            int startValue2 = 1;
+            String maxIdSql2 = "SELECT NVL(MAX(order_detail_id), 0) + 1 FROM tbl_order_detail";
+            pstmt = conn.prepareStatement(maxIdSql2);
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+            	startValue2 = rs.getInt(1);
+            }
+            
+            String createSeqSql2 = "CREATE SEQUENCE ORDER_DETAIL_SEQ START WITH " + startValue2 + 
+                    " INCREMENT BY 1 NOCACHE NOCYCLE";
+            stmt.executeUpdate(createSeqSql2);
             
             DBConnection.commit();
+            System.out.println("ORDER_SEQ 시퀀스가 " + startValue + "에서 시작하도록 설정되었습니다.");
+            System.out.println("PRODUCT_DETAIL_SEQ 시퀀스가 " + startValue2 + "에서 시작하도록 설정되었습니다.");
             
         } catch (SQLException e) {
             DBConnection.rollback();
-            System.out.println("주문 시퀀스 생성 오류: " + e.getMessage());
+            System.out.println("상품 시퀀스 생성 오류: " + e.getMessage());
         } finally {
             try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
                 if (stmt != null) stmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
         }
+    }
+    
+    /**
+     * 상품의 요청 수 증가
+     * @param productId 상품 ID
+     * @return 성공 여부
+     */
+    public boolean increaseRequestCount(int productId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        boolean success = false;
+        
+        try {
+            conn = DBConnection.getConnection();
+            
+            String sql = "UPDATE tbl_product SET request_count = request_count + 1 WHERE product_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, productId);
+            
+            int result = pstmt.executeUpdate();
+            
+            if (result > 0) {
+                DBConnection.commit();
+                success = true;
+            } else {
+                DBConnection.rollback();
+            }
+            
+        } catch (SQLException e) {
+            DBConnection.rollback();
+            System.out.println("요청 수 증가 오류: " + e.getMessage());
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
+            } catch (SQLException e) {
+                System.out.println("리소스 닫기 오류: " + e.getMessage());
+            }
+        }
+        
+        return success;
+    }
+
+    /**
+     * 상품의 요청 수 감소
+     * @param productId 상품 ID
+     * @return 성공 여부
+     */
+    public boolean decreaseRequestCount(int productId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        boolean success = false;
+        
+        try {
+            conn = DBConnection.getConnection();
+            
+            // 현재 요청 수 확인 (0 미만으로 감소하지 않도록)
+            String checkSql = "SELECT request_count FROM tbl_product WHERE product_id = ?";
+            pstmt = conn.prepareStatement(checkSql);
+            pstmt.setInt(1, productId);
+            
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                int currentCount = rs.getInt("request_count");
+                if (currentCount <= 0) {
+                    return true; // 이미 0이면 감소 필요 없음
+                }
+            } else {
+                return false; // 상품이 존재하지 않음
+            }
+            
+            // 요청 수 감소
+            String sql = "UPDATE tbl_product SET request_count = request_count - 1 WHERE product_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, productId);
+            
+            int result = pstmt.executeUpdate();
+            
+            if (result > 0) {
+                DBConnection.commit();
+                success = true;
+            } else {
+                DBConnection.rollback();
+            }
+            
+        } catch (SQLException e) {
+            DBConnection.rollback();
+            System.out.println("요청 수 감소 오류: " + e.getMessage());
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
+            } catch (SQLException e) {
+                System.out.println("리소스 닫기 오류: " + e.getMessage());
+            }
+        }
+        
+        return success;
     }
     
     // 주문 상태별 목록 조회
@@ -384,6 +573,7 @@ public class OrderDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }

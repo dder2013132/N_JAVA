@@ -45,6 +45,7 @@ public class ProductDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -96,6 +97,7 @@ public class ProductDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -146,6 +148,7 @@ public class ProductDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -192,6 +195,7 @@ public class ProductDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -234,6 +238,7 @@ public class ProductDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -287,6 +292,7 @@ public class ProductDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -323,6 +329,7 @@ public class ProductDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -375,6 +382,8 @@ public class ProductDAO {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
                 if (stmt != null) stmt.close();
+                DBConnection.closeConnection();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -408,6 +417,7 @@ public class ProductDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
+                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }

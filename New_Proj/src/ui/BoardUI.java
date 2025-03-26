@@ -6,6 +6,9 @@ import model.Board;
 import model.Comment;
 import model.Member;
 import util.ConsoleUtil;
+
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -27,23 +30,34 @@ public class BoardUI {
      */
     public void showBoardList() {
         while (true) {
+            ConsoleUtil.clearScreen();
             List<Board> boardList = boardDAO.getBoardList();
             
-            ConsoleUtil.printDivider();
+            ConsoleUtil.printHeader("게시판");
             
             if (boardList.isEmpty()) {
-                ConsoleUtil.printMessage("게시글이 없습니다.");
+                ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "게시글이 없습니다." + ConsoleUtil.RESET);
             } else {
+                ConsoleUtil.printMessage(ConsoleUtil.CYAN + "번호   |  타입  |  제목                     |  작성자      |  날짜         |조회수" + ConsoleUtil.RESET);
+                ConsoleUtil.printDivider();
+                
                 for (Board board : boardList) {
-                    ConsoleUtil.printMessage(board.getDisplayInfo());
+                    String type = getColoredBoardType(board.getBoardType());
+                    String title = limitString(board.getTitle(), 30);
+                    String dateStr = formatDate(board.getRegDate());
+                    
+                    ConsoleUtil.printMessage(String.format("%03d   |  %s  |  %-20s  |  %-8s  |  %s  | %d", 
+                        board.getBoardId(), type, title, board.getUserName(), dateStr, board.getViewCount()));
                 }
             }
             
             ConsoleUtil.printDivider();
-            ConsoleUtil.printMessage("글 보기(번호입력) q. 글 등록 w. 돌아가기");
+            ConsoleUtil.printMessage("게시글 번호 입력: 해당 게시글 보기");
+            ConsoleUtil.printMessage(ConsoleUtil.GREEN + "q" + ConsoleUtil.RESET + ": 글 등록   " + 
+                                  ConsoleUtil.RED + "w" + ConsoleUtil.RESET + ": 돌아가기");
             ConsoleUtil.printDivider();
             
-            String input = ConsoleUtil.readString("선택 >> ");
+            String input = ConsoleUtil.readString("선택 " + ConsoleUtil.CYAN + "▶ " + ConsoleUtil.RESET);
             
             if (input.equalsIgnoreCase("q")) {
                 registerBoard();
@@ -55,9 +69,36 @@ public class BoardUI {
                     showBoardDetail(boardId);
                 } catch (NumberFormatException e) {
                     ConsoleUtil.printError("올바른 입력이 아닙니다. 다시 선택해주세요.");
+                    ConsoleUtil.pressEnterToContinue();
                 }
             }
         }
+    }
+    
+    private String getColoredBoardType(String boardType) {
+        switch (boardType) {
+            case "공지":
+                return ConsoleUtil.RED + "공지" + ConsoleUtil.RESET;
+            case "질문":
+                return ConsoleUtil.BLUE + "질문" + ConsoleUtil.RESET;
+            case "자유":
+                return ConsoleUtil.GREEN + "자유" + ConsoleUtil.RESET;
+            default:
+                return boardType;
+        }
+    }
+    
+    private String limitString(String str, int maxLength) {
+        if (str.length() <= maxLength) {
+            return str;
+        }
+        return str.substring(0, maxLength - 3) + "...";
+    }
+
+    private String formatDate(Date date) {
+        if (date == null) return "";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(date);
     }
     
     /**
@@ -65,30 +106,45 @@ public class BoardUI {
      * @param boardId 게시글 ID
      */
     private void showBoardDetail(int boardId) {
+        ConsoleUtil.clearScreen();
         Board board = boardDAO.getBoardById(boardId);
         
         if (board == null) {
             ConsoleUtil.printError("존재하지 않는 게시글입니다.");
+            ConsoleUtil.pressEnterToContinue();
             return;
         }
         
+        ConsoleUtil.printHeader("게시글 상세");
+        
+        // 게시글 헤더 정보
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "제목: " + ConsoleUtil.RESET + board.getTitle());
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "작성자: " + ConsoleUtil.RESET + board.getUserName() + 
+                              ConsoleUtil.BLUE + "  |  " + ConsoleUtil.YELLOW + "작성일: " + 
+                              ConsoleUtil.RESET + formatDate(board.getRegDate()) + 
+                              ConsoleUtil.BLUE + "  |  " + ConsoleUtil.YELLOW + "조회수: " + 
+                              ConsoleUtil.RESET + board.getViewCount());
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "분류: " + ConsoleUtil.RESET + getColoredBoardType(board.getBoardType()));
         ConsoleUtil.printDivider();
-        ConsoleUtil.printMessage(String.format("제목: %-70s 날짜: %s", board.getTitle(), board.getRegDate()));
-        ConsoleUtil.printMessage("-----------------------------------------------------------------------------------");
-        ConsoleUtil.printMessage("작성자: " + board.getUserName());
-        ConsoleUtil.printMessage("-----------------------------------------------------------------------------------");
-        ConsoleUtil.printMessage(board.getContent());
-        ConsoleUtil.printMessage("-----------------------------------------------------------------------------------");
-        ConsoleUtil.printMessage("댓글란");
-        ConsoleUtil.printMessage("-----------------------------------------------------------------------------------");
+        
+        // 게시글 내용
+        String[] contentLines = board.getContent().split("\n");
+        for (String line : contentLines) {
+            ConsoleUtil.printMessage(line);
+        }
+        
+        ConsoleUtil.printDivider();
+        ConsoleUtil.printMessage(ConsoleUtil.PURPLE + "▶ 댓글" + ConsoleUtil.RESET);
         
         // 댓글 목록 표시
         List<Comment> commentList = commentDAO.getCommentsByBoardId(boardId);
         if (commentList.isEmpty()) {
-            ConsoleUtil.printMessage("댓글이 없습니다.");
+            ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "댓글이 없습니다." + ConsoleUtil.RESET);
         } else {
             for (Comment comment : commentList) {
-                ConsoleUtil.printMessage(comment.getDisplayInfo());
+                ConsoleUtil.printMessage(ConsoleUtil.CYAN + comment.getCommentId() + ". " + 
+                                      ConsoleUtil.GREEN + comment.getUserName() + ConsoleUtil.RESET + 
+                                      ": " + comment.getContent());
             }
         }
         
@@ -98,48 +154,62 @@ public class BoardUI {
         boolean isOwner = board.getMemberId().equals(loginMember.getMemberId());
         
         if (isOwner) {
-            ConsoleUtil.printMessage("1. 글 수정 2. 글 삭제 3. 댓글작성 4. 댓글 삭제 5. 돌아가기");
+            ConsoleUtil.printMessage("1. " + ConsoleUtil.BLUE + "글 수정" + ConsoleUtil.RESET + "   " + 
+                                  "2. " + ConsoleUtil.RED + "글 삭제" + ConsoleUtil.RESET + "   " + 
+                                  "3. " + ConsoleUtil.GREEN + "댓글 작성" + ConsoleUtil.RESET + "   " + 
+                                  "4. " + ConsoleUtil.YELLOW + "댓글 삭제" + ConsoleUtil.RESET + "   " + 
+                                  "5. " + ConsoleUtil.PURPLE + "돌아가기" + ConsoleUtil.RESET);
         } else {
-            ConsoleUtil.printMessage("1. 댓글작성 2. 댓글 삭제 3. 돌아가기");
+            ConsoleUtil.printMessage("1. " + ConsoleUtil.GREEN + "댓글 작성" + ConsoleUtil.RESET + "   " + 
+                                  "2. " + ConsoleUtil.YELLOW + "댓글 삭제" + ConsoleUtil.RESET + "   " + 
+                                  "3. " + ConsoleUtil.PURPLE + "돌아가기" + ConsoleUtil.RESET);
         }
         
-        int choice = ConsoleUtil.readInt("선택 >> ");
+        int choice = ConsoleUtil.readInt("선택 " + ConsoleUtil.CYAN + "▶ " + ConsoleUtil.RESET);
         
         if (isOwner) {
             switch (choice) {
                 case 1:
                     updateBoard(board);
+                    showBoardDetail(boardId); // 새로고침
                     break;
                 case 2:
-                    deleteBoard(board.getBoardId());
+                    if (deleteBoard(board.getBoardId())) {
+                        return; // 삭제 성공 시 목록으로
+                    }
+                    showBoardDetail(boardId); // 삭제 실패 시 새로고침
                     break;
                 case 3:
                     addComment(board.getBoardId());
-                    showBoardDetail(boardId); // 댓글 추가 후 새로고침
+                    showBoardDetail(boardId); // 새로고침
                     break;
                 case 4:
                     deleteComment(boardId);
-                    showBoardDetail(boardId); // 댓글 삭제 후 새로고침
+                    showBoardDetail(boardId); // 새로고침
                     break;
                 case 5:
                     return; // 게시판 목록으로 돌아가기
                 default:
                     ConsoleUtil.printError("잘못된 선택입니다.");
+                    ConsoleUtil.pressEnterToContinue();
+                    showBoardDetail(boardId); // 다시 보기
             }
         } else {
             switch (choice) {
                 case 1:
                     addComment(board.getBoardId());
-                    showBoardDetail(boardId); // 댓글 추가 후 새로고침
+                    showBoardDetail(boardId); // 새로고침
                     break;
                 case 2:
                     deleteComment(boardId);
-                    showBoardDetail(boardId); // 댓글 삭제 후 새로고침
+                    showBoardDetail(boardId); // 새로고침
                     break;
                 case 3:
                     return; // 게시판 목록으로 돌아가기
                 default:
                     ConsoleUtil.printError("잘못된 선택입니다.");
+                    ConsoleUtil.pressEnterToContinue();
+                    showBoardDetail(boardId); // 다시 보기
             }
         }
     }
@@ -243,7 +313,7 @@ public class BoardUI {
      * 게시글 삭제 메소드
      * @param boardId 삭제할 게시글 ID
      */
-    private void deleteBoard(int boardId) {
+    private boolean deleteBoard(int boardId) {
         ConsoleUtil.printDivider();
         
         boolean confirm = ConsoleUtil.confirm("정말 삭제하시겠습니까?");
@@ -253,10 +323,12 @@ public class BoardUI {
             
             if (success) {
                 ConsoleUtil.printSuccess("게시글이 삭제되었습니다.");
+                return success;
             } else {
                 ConsoleUtil.printError("게시글 삭제에 실패했습니다.");
             }
         }
+        return false;
     }
     
     /**
@@ -303,7 +375,7 @@ public class BoardUI {
         int commentId = ConsoleUtil.readInt("삭제할 댓글 번호 >> ");
         
         // 본인 댓글인지 확인
-        boolean isOwner = commentDAO.isCommentOwner(commentId, loginMember.getMemberId());
+        boolean isOwner = commentDAO.isCommentOwner(boardId, commentId, loginMember.getMemberId());
         
         if (!isOwner) {
             ConsoleUtil.printError("본인이 작성한 댓글만 삭제할 수 있습니다.");
@@ -313,7 +385,7 @@ public class BoardUI {
         boolean confirm = ConsoleUtil.confirm("정말 삭제하시겠습니까?");
         
         if (confirm) {
-            boolean success = commentDAO.deleteComment(commentId, loginMember.getMemberId());
+            boolean success = commentDAO.deleteComment(boardId, commentId, loginMember.getMemberId());
             
             if (success) {
                 ConsoleUtil.printSuccess("댓글이 삭제되었습니다.");
