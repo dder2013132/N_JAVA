@@ -74,7 +74,7 @@ public class LoginUI {
         Member member = memberDAO.login(id, password);
         
         if (member != null) {
-            ConsoleUtil.printMessage(member.getUserName() + " 님, 환영합니다.");
+            ConsoleUtil.printMessage(member.getMemberId() + " 님, 로그인에 성공하셨습니다.");
             return member;
         } else {
             ConsoleUtil.printError("아이디 또는 비밀번호가 일치하지 않습니다.");

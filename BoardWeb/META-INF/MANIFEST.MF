@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: BoardWeb
+Bundle-SymbolicName: BoardWeb
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Automatic-Module-Name: BoardWeb
+Export-Package: com.yedam.common,
+ com.yedam.dao,
+ com.yedam.mapper,
+ com.yedam.test,
+ com.yedam.vo,
+ com.yedam.web

@@ -29,8 +29,8 @@ public class MainMenuUI {
         while (true) {
             ConsoleUtil.clearScreen();
             ConsoleUtil.printHeader("게임 판매 & 리뷰 시스템");
-            ConsoleUtil.printMessage(ConsoleUtil.GREEN + loginMember.getUserName() + 
-                                  ConsoleUtil.RESET + " 님, 환영합니다!");
+            ConsoleUtil.printMessage(ConsoleUtil.GREEN + loginMember.getMemberId() + 
+                                  ConsoleUtil.RESET + " 님, 환영합니다! 마지막 로그인 날짜 : " + ConsoleUtil.CYAN + loginMember.getLastLoginDate() + ConsoleUtil.RESET);
             ConsoleUtil.printDivider();
             ConsoleUtil.printMessage("1. " + ConsoleUtil.YELLOW + "◈ 게시판" + ConsoleUtil.RESET + "       - 게시글 보기 및 작성");
             ConsoleUtil.printMessage("2. " + ConsoleUtil.BLUE + "◈ 게임 구매" + ConsoleUtil.RESET + "     - 게임 상품 둘러보기 및 구매");

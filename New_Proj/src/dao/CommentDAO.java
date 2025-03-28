@@ -57,7 +57,6 @@ public class CommentDAO {
 	        try {
 	            if (rs != null) rs.close();
 	            if (pstmt != null) pstmt.close();
-	            DBConnection.closeConnection();
 	        } catch (SQLException e) {
 	            System.out.println("리소스 닫기 오류: " + e.getMessage());
 	        }
@@ -104,7 +103,6 @@ public class CommentDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -144,7 +142,6 @@ public class CommentDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -181,7 +178,6 @@ public class CommentDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }

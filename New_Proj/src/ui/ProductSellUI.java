@@ -332,7 +332,7 @@ public class ProductSellUI {
                     String dateStr = formatDate(order.getOrderDate());
                     
                     ConsoleUtil.printMessage(String.format("%2d    |  %09d  |  %-8s  |  %s  |  %3d  |  %s", 
-                        index++, order.getOrderId(), order.getUserName(), dateStr, 
+                        index++, order.getOrderId(), order.getMemberId(), dateStr, 
                         detail.getQuantity(), statusStr));
                 }
             }
@@ -361,7 +361,7 @@ public class ProductSellUI {
         ConsoleUtil.printHeader("배송 상태 변경");
         
         ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "주문번호: " + ConsoleUtil.RESET + selectedOrder.getOrderId());
-        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "주문자: " + ConsoleUtil.RESET + selectedOrder.getUserName());
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "주문자: " + ConsoleUtil.RESET + selectedOrder.getMemberId());
         ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "주문일자: " + ConsoleUtil.RESET + formatDate(selectedOrder.getOrderDate()));
         ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "현재 상태: " + ConsoleUtil.RESET + getColoredStatus(selectedOrder.getDeliveryStatus()));
         
@@ -431,10 +431,24 @@ public class ProductSellUI {
             return;
         }
         
-        // 설명 입력
-        String description = ConsoleUtil.readString("설명>> ");
-        if (description.trim().isEmpty()) {
+        // 설명 입력 - 여러 줄 입력 가능
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "설명 입력 (입력 완료 후 새 줄에 '/end'를 입력하세요)" + ConsoleUtil.RESET);
+        ConsoleUtil.printDivider();
+        
+        StringBuilder descriptionBuilder = new StringBuilder();
+        String line;
+        while (true) {
+            line = ConsoleUtil.readString(">> ");
+            if (line.equals("/end")) {
+                break;
+            }
+            descriptionBuilder.append(line).append("\n");
+        }
+        
+        String description = descriptionBuilder.toString().trim();
+        if (description.isEmpty()) {
             ConsoleUtil.printError("설명을 입력해주세요.");
+            ConsoleUtil.pressEnterToContinue();
             return;
         }
         
@@ -514,20 +528,41 @@ public class ProductSellUI {
         ConsoleUtil.printDivider();
         
         // 장르(카테고리) 수정
-        String category = ConsoleUtil.readString("장르 (" + product.getCategory() + ") >> ");
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "현재 장르: " + ConsoleUtil.RESET + product.getCategory());
+        String category = ConsoleUtil.readString("새 장르 (변경하지 않으려면 엔터) >> ");
         if (!category.trim().isEmpty()) {
             product.setCategory(category);
         }
         
         // 게임명(제목) 수정
-        String productName = ConsoleUtil.readString("제목 (" + product.getProductName() + ") >> ");
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "현재 제목: " + ConsoleUtil.RESET + product.getProductName());
+        String productName = ConsoleUtil.readString("새 제목 (변경하지 않으려면 엔터) >> ");
         if (!productName.trim().isEmpty()) {
             product.setProductName(productName);
         }
         
-        // 설명 수정
-        String description = ConsoleUtil.readString("설명 >> ");
-        if (!description.trim().isEmpty()) {
+        // 설명 수정 - 여러 줄 입력 가능
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "현재 설명:" + ConsoleUtil.RESET);
+        String[] descLines = product.getDescription().split("\n");
+        for (String line : descLines) {
+            ConsoleUtil.printMessage(line);
+        }
+        
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "새 설명 입력 (입력 완료 후 새 줄에 '/end'를 입력하세요, 변경하지 않으려면 바로 '/end')" + ConsoleUtil.RESET);
+        ConsoleUtil.printDivider();
+        
+        StringBuilder descriptionBuilder = new StringBuilder();
+        String line;
+        while (true) {
+            line = ConsoleUtil.readString(">> ");
+            if (line.equals("/end")) {
+                break;
+            }
+            descriptionBuilder.append(line).append("\n");
+        }
+        
+        String description = descriptionBuilder.toString().trim();
+        if (!description.isEmpty()) {
             product.setDescription(description);
         }
         

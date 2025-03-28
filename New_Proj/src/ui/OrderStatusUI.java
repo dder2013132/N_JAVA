@@ -42,7 +42,7 @@ public class OrderStatusUI {
                     String dateStr = formatDate(order.getOrderDate());
                     String statusStr = getColoredStatus(order.getDeliveryStatus());
                     
-                    ConsoleUtil.printMessage(String.format("%07d  |  %-20s  |  %s  |  %3d  |  %,10d원  |  %s", 
+                    ConsoleUtil.printMessage(String.format("%05d  |  %-20s  |  %s  | %3d | %,10d원  |  %s", 
                         order.getOrderId(), productName, dateStr, detail.getQuantity(), 
                         detail.getPrice() * detail.getQuantity(), statusStr));
                 }

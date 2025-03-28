@@ -42,7 +42,6 @@ public class BoardDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -90,7 +89,6 @@ public class BoardDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -116,7 +114,7 @@ public class BoardDAO {
             String sql = "SELECT b.*, m.user_name " +
                          "FROM tbl_board b " +
                          "JOIN tbl_member m ON b.member_id = m.member_id " +
-                         "WHERE b.board_id = ?";
+                         "WHERE b.board_id = ? ";
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, boardId);
             
@@ -140,7 +138,6 @@ public class BoardDAO {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -180,7 +177,6 @@ public class BoardDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -224,7 +220,6 @@ public class BoardDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -254,7 +249,6 @@ public class BoardDAO {
         } finally {
             try {
                 if (pstmt != null) pstmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }
@@ -295,7 +289,7 @@ public class BoardDAO {
             stmt.executeUpdate(createSeqSql);
             
             DBConnection.commit();
-            System.out.println("BOARD_SEQ 시퀀스가 " + startValue + "에서 시작하도록 설정되었습니다.");
+           // System.out.println("BOARD_SEQ 시퀀스가 " + startValue + "에서 시작하도록 설정되었습니다.");
             
         } catch (SQLException e) {
             DBConnection.rollback();
@@ -305,7 +299,6 @@ public class BoardDAO {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
                 if (stmt != null) stmt.close();
-                DBConnection.closeConnection();
             } catch (SQLException e) {
                 System.out.println("리소스 닫기 오류: " + e.getMessage());
             }

@@ -127,18 +127,21 @@ public class ProductPurchaseUI {
         }
         
         ConsoleUtil.printDivider();
+        boolean isOwnProduct = product.getSellerId().equals(loginMember.getMemberId());
         
-        if (product.getStockQuantity() > 0) {
+        if (isOwnProduct) {
+        	ConsoleUtil.printMessage(ConsoleUtil.RED + "⚠️ 자신이 등록한 상품은 구매할 수 없습니다." + ConsoleUtil.RESET);
+            ConsoleUtil.printMessage("1. " + ConsoleUtil.YELLOW + "돌아가기" + ConsoleUtil.RESET);
+            
+            int choice = ConsoleUtil.readInt("선택 " + ConsoleUtil.CYAN + "▶ " + ConsoleUtil.RESET);
+            return; // 상품 목록으로 돌아가기
+        } else if (product.getStockQuantity() > 0) {
+            // 타인의 상품이고 재고가 있는 경우
             ConsoleUtil.printMessage("1. " + ConsoleUtil.GREEN + "구매하기" + ConsoleUtil.RESET + "   " + 
                                   "2. " + ConsoleUtil.RED + "돌아가기" + ConsoleUtil.RESET);
-        } else {
-            ConsoleUtil.printMessage(ConsoleUtil.RED + "현재 품절된 상품입니다." + ConsoleUtil.RESET);
-            ConsoleUtil.printMessage("1. " + ConsoleUtil.RED + "돌아가기" + ConsoleUtil.RESET);
-        }
-        
-        int choice = ConsoleUtil.readInt("선택 " + ConsoleUtil.CYAN + "▶ " + ConsoleUtil.RESET);
-        
-        if (product.getStockQuantity() > 0) {
+            
+            int choice = ConsoleUtil.readInt("선택 " + ConsoleUtil.CYAN + "▶ " + ConsoleUtil.RESET);
+            
             switch (choice) {
                 case 1:
                     purchaseProduct(product);
@@ -151,6 +154,11 @@ public class ProductPurchaseUI {
                     showProductDetail(productId); // 다시 보기
             }
         } else {
+            // 타인의 상품이지만 재고가 없는 경우
+            ConsoleUtil.printMessage(ConsoleUtil.RED + "현재 품절된 상품입니다." + ConsoleUtil.RESET);
+            ConsoleUtil.printMessage("1. " + ConsoleUtil.RED + "돌아가기" + ConsoleUtil.RESET);
+            
+            int choice = ConsoleUtil.readInt("선택 " + ConsoleUtil.CYAN + "▶ " + ConsoleUtil.RESET);
             return; // 상품 목록으로 돌아가기
         }
     }

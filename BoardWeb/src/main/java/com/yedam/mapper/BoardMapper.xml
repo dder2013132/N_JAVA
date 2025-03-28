@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yedam.mapper.BoardMapper">
+<!-- 목록 가져오기 -->  
+  <select id="selectBoard" resultType="board">
+    select board_no
+          ,title
+          ,writer
+          ,content
+          ,write_date
+    from new_tbl_board
+  </select>
+  <!-- 등록하기 -->
+  <insert id="insertBoard" parameterType="board">
+    insert into new_tbl_board(board_no,title,content,writer)
+    values(new_board_seq.nextval,#{title},#{content},#{writer})
+  </insert>
+  
+  <!-- 수정하기 -->
+  <update id="updateBoard" parameterType="board">
+    update new_tbl_board
+    set    title = nvl(#{title}, content)
+    <if test="content != null">
+          ,content = #{content}
+    </if>
+    where board_no = #{boardNo}
+  </update>
+  
+  <!-- 삭제하기 -->
+  <delete id="deleteBoard" parameterType="int">
+    delete from new_tbl_board
+    where board_no = #{boardNo}
+  </delete>
+</mapper>

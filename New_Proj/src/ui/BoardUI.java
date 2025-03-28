@@ -43,11 +43,11 @@ public class BoardUI {
                 
                 for (Board board : boardList) {
                     String type = getColoredBoardType(board.getBoardType());
-                    String title = limitString(board.getTitle(), 30);
+                    String title = limitString(board.getTitle(), 20);
                     String dateStr = formatDate(board.getRegDate());
                     
                     ConsoleUtil.printMessage(String.format("%03d   |  %s  |  %-20s  |  %-8s  |  %s  | %d", 
-                        board.getBoardId(), type, title, board.getUserName(), dateStr, board.getViewCount()));
+                        board.getBoardId(), type, title, board.getMemberId(), dateStr, board.getViewCount()));
                 }
             }
             
@@ -119,7 +119,7 @@ public class BoardUI {
         
         // 게시글 헤더 정보
         ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "제목: " + ConsoleUtil.RESET + board.getTitle());
-        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "작성자: " + ConsoleUtil.RESET + board.getUserName() + 
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "작성자: " + ConsoleUtil.RESET + board.getMemberId() + 
                               ConsoleUtil.BLUE + "  |  " + ConsoleUtil.YELLOW + "작성일: " + 
                               ConsoleUtil.RESET + formatDate(board.getRegDate()) + 
                               ConsoleUtil.BLUE + "  |  " + ConsoleUtil.YELLOW + "조회수: " + 
@@ -143,7 +143,7 @@ public class BoardUI {
         } else {
             for (Comment comment : commentList) {
                 ConsoleUtil.printMessage(ConsoleUtil.CYAN + comment.getCommentId() + ". " + 
-                                      ConsoleUtil.GREEN + comment.getUserName() + ConsoleUtil.RESET + 
+                                      ConsoleUtil.GREEN + comment.getMemberId() + ConsoleUtil.RESET + 
                                       ": " + comment.getContent());
             }
         }
@@ -226,10 +226,21 @@ public class BoardUI {
             return;
         }
         
-        String content = ConsoleUtil.readString("내용 >> ");
-        if (content.trim().isEmpty()) {
-            ConsoleUtil.printError("내용을 입력해주세요.");
-            return;
+        StringBuilder contentBuilder = new StringBuilder();
+        String line;
+        while (true) {
+        	line = ConsoleUtil.readString(">> ");
+        	if(line.equals("/end")) {
+        		break;
+        	}
+        	contentBuilder.append(line).append("\n");
+        }
+        
+        String content = contentBuilder.toString().trim();
+        if (content.isEmpty()) {
+        	ConsoleUtil.printError("내용을 입력해주세요.");
+        	ConsoleUtil.pressEnterToContinue();
+        	return;
         }
         
         ConsoleUtil.printMessage("게시판 타입: 1. 공지 2. 질문 3. 자유");
@@ -259,6 +270,7 @@ public class BoardUI {
         } else {
             ConsoleUtil.printError("게시글 등록에 실패했습니다.");
         }
+        ConsoleUtil.pressEnterToContinue();
     }
     
     /**
@@ -266,20 +278,42 @@ public class BoardUI {
      * @param board 수정할 게시글
      */
     private void updateBoard(Board board) {
-        ConsoleUtil.printDivider();
+        ConsoleUtil.clearScreen();
+        ConsoleUtil.printHeader("게시글 수정");
         
-        String title = ConsoleUtil.readString("제목 (" + board.getTitle() + ") >> ");
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "현재 제목: " + ConsoleUtil.RESET + board.getTitle());
+        String title = ConsoleUtil.readString("새 제목 (변경하지 않으려면 엔터) >> ");
         if (!title.trim().isEmpty()) {
             board.setTitle(title);
         }
         
-        String content = ConsoleUtil.readString("내용 >> ");
-        if (!content.trim().isEmpty()) {
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "현재 내용:" + ConsoleUtil.RESET);
+        String[] contentLines = board.getContent().split("\n");
+        for (String line : contentLines) {
+            ConsoleUtil.printMessage(line);
+        }
+        
+        ConsoleUtil.printMessage(ConsoleUtil.YELLOW + "새 내용 입력 (입력 완료 후 새 줄에 '/end'를 입력하세요, 변경하지 않으려면 바로 '/end')" + ConsoleUtil.RESET);
+        ConsoleUtil.printDivider();
+        
+        StringBuilder contentBuilder = new StringBuilder();
+        String line;
+        while (true) {
+            line = ConsoleUtil.readString(">> ");
+            if (line.equals("/end")) {
+                break;
+            }
+            contentBuilder.append(line).append("\n");
+        }
+        
+        String content = contentBuilder.toString().trim();
+        if (!content.isEmpty()) {
             board.setContent(content);
         }
         
+        ConsoleUtil.printDivider();
         ConsoleUtil.printMessage("게시판 타입: 1. 공지 2. 질문 3. 자유 (현재: " + board.getBoardType() + ")");
-        String typeChoice = ConsoleUtil.readString("선택 (엔터시 유지) >> ");
+        String typeChoice = ConsoleUtil.readString("선택 (변경하지 않으려면 엔터) >> ");
         
         if (!typeChoice.trim().isEmpty()) {
             try {
@@ -307,6 +341,7 @@ public class BoardUI {
         } else {
             ConsoleUtil.printError("게시글 수정에 실패했습니다.");
         }
+        ConsoleUtil.pressEnterToContinue();
     }
     
     /**
