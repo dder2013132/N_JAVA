@@ -13,18 +13,34 @@ import com.yedam.common.DataSource;
 import com.yedam.mapper.BoardMapper;
 import com.yedam.vo.BoardVO;
 
-public class BoardControl implements Control{
+public class ModifyBoardControl implements Control {
+
 	@Override
 	public void exec(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		// bno=15&title=바뀐값&content=바뀐값 수정후 목록이동.
 		String bno = req.getParameter("bno");
+		String title = req.getParameter("title");
+		String content = req.getParameter("content");
 		String page = req.getParameter("page");
-		SqlSession sqlSession = DataSource.getInstance().openSession();
+
+		// 매개값.
+		BoardVO board = new BoardVO();
+		board.setBoardNo(Integer.parseInt(bno));
+		board.setTitle(title);
+		board.setContent(content);
+
+		// 수정처리.
+		SqlSession sqlSession = DataSource.getInstance().openSession(true);
 		BoardMapper mapper = sqlSession.getMapper(BoardMapper.class);
-		BoardVO board = mapper.selectOne(Integer.parseInt(bno));
-		req.setAttribute("board", board);
-		req.setAttribute("page", page);
-		//req.getRequestDispatcher("/WEB-INF/views/boardOne.jsp").forward(req, resp);
-		req.getRequestDispatcher("/WEB-INF/views/board.jsp").forward(req, resp);
-		System.out.println("BoardControl 실행.");
+		int r = mapper.updateBoard(board);
+
+		// 목록이동.
+		if (r > 0) {
+			resp.sendRedirect("boardList.do?page=" + page);
+		} else {
+			System.out.println("수정오류.");
+		}
+
 	}
+
 }

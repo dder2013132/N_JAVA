@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<!-- views/includes/header.jsp -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -20,7 +21,7 @@
                 <div class="sidebar-heading border-bottom bg-light">Start Bootstrap</div>
                 <div class="list-group list-group-flush">
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="boardList.do">글목록</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="addBoard.do">등록</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="addBoard.do">등록화면</a>
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Overview</a>
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Events</a>
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Profile</a>

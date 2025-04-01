@@ -1,11 +1,11 @@
 package com.yedam.vo;
 
-import java.sql.Date;
+import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-// lombok 설치 & 라이브러리 다운로드.
+// lombok설치 & 라이브러리 다운로드.
 @Getter
 @Setter
 @ToString
