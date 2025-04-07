@@ -36,16 +36,16 @@ public class BoardListControl implements Control {
 		BoardMapper mapper = sqlSession.getMapper(BoardMapper.class);
 		List<BoardVO> list = mapper.selectBoard(search);
 		req.setAttribute("blist", list);
-		int totalCnt = mapper.selectTotal();
-		PageDTO pageDTO = new PageDTO(totalCnt, search.getPage());
-		req.setAttribute("page", search.getPage());
-		req.setAttribute("pageDTO", pageDTO);
+
+		// 페이징계산.
+		int totalCnt = mapper.selectTotal(search);
+		PageDTO pageDTO = new PageDTO(totalCnt, Integer.parseInt(page));
+		req.setAttribute("paging", pageDTO);
 		req.setAttribute("searchCondition", sc);
 		req.setAttribute("keyword", kw);
-		
 
 		// boardList.do -> jsp 출력. : 페이지재지정.
-		req.getRequestDispatcher("/WEB-INF/views/boardList.jsp")//
+		req.getRequestDispatcher("board/boardList.tiles")//
 				.forward(req, resp);
 
 	}

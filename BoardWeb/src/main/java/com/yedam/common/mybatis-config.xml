@@ -9,6 +9,8 @@
   <typeAliases>
     <typeAlias alias="board" type="com.yedam.vo.BoardVO"/>
     <typeAlias alias="search" type="com.yedam.common.SearchDTO"/>
+    <typeAlias alias="member" type="com.yedam.vo.MemberVO"/>
+    <typeAlias alias="reply" type="com.yedam.vo.ReplyVO"/>
   </typeAliases>
   <environments default="development">
     <environment id="development">
@@ -23,5 +25,7 @@
   </environments>
   <mappers>
     <mapper resource="com/yedam/mapper/BoardMapper.xml"/>
+    <mapper resource="com/yedam/mapper/MemberMapper.xml"/>
+    <mapper resource="com/yedam/mapper/ReplyMapper.xml"/>
   </mappers>
 </configuration>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yedam.mapper.MemberMapper">
+	<select id="selectMember" resultType="member">
+		SELECT member_id,
+		member_pw,
+		member_name,
+		member_responsibility,
+		images
+		FROM new_tbl_member
+		WHERE member_id = #{id}
+		AND member_pw = #{pw}
+	</select>
+	<!-- 아이디로 회원 조회 -->
+	<select id="selectMemberId" resultType="member"
+		parameterType="string">
+		select *
+		from new_tbl_member
+		where member_id = #{id}
+	</select>
+	<insert id="insertMember" parameterType="member">
+		INSERT INTO new_tbl_member (member_id, member_pw, member_name, images)
+		VALUES (#{userID}, #{password}, #{userName}, #{image})
+	</insert>
+	<update id="updatePasswd" parameterType="member">
+		update new_tbl_member
+		set member_pw = #{password}
+		where member_id = #{userID}
+	</update>
+</mapper>
