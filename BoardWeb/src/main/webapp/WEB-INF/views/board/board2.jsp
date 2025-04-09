@@ -3,8 +3,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css">
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.2/moment.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+
 <!-- webapp/WEB-INF/views/board.jsp -->
-<h3>상세페이지(board.jsp)</h3>
+<h3>상세페이지(board2.jsp)</h3>
 <form action="modifyForm.do">
   <input type="hidden" name="bno" value="${board.boardNo }">
   <input type="hidden" name="page" value="${page }">
@@ -52,41 +57,27 @@
 
   </table>
 </form>
-<!-- 댓글 -->
-<style>
-  div.reply span {
-    display: inline-block;
-  }
-  div.reply ul {
-    list-style-type: none;
-  }
-</style>
-<div class="header">
-    <input class="col-sm-8" id="reply">
-    <button class="col-sm-3 btn btn-primary addReply">댓글등록</button>
-</div>
-<div class="container reply">
-  <div class="content">
-    <ul>
-      <li class="not-erase-reply">
-        <span class="col-sm-2">글번호</span>
-        <span class="col-sm-2">내용</span>
-        <span class="col-sm-2">작성자</span>
-        <span class="col-sm-2">삭제</span>
-      </li>
-    </ul>
-	<nav aria-label="...">
-		<ul class="pagination justify-content-center">
-			<li class="page-item disabled"><span class="page-link">Previous</span></li>
-			<li class="page-item"><a class="page-link" href="#">1</a></li>
-			<li class="page-item active"><span class="page-link">2</span></li>
-			<li class="page-item"><a class="page-link" href="#">3</a></li>
-			<li class="page-item"><a class="page-link" href="#">Next</a></li>
-		</ul>
-	</nav>
-  </div>
-</div>
-<p><a href='boardList.do'>목록이동</a></p>
+<!-- ↓↓↓ 댓글 ↓↓↓ -->
+<p><input class="col-sm-8" id="replytext"> <button id="addRow" class="btn btn-primary">댓글달기</button> <button id="removereply" class="btn btn-warning">댓글지우기</button></p>
+<table id="replytable" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>댓글번호</th>
+            <th>내용</th>
+            <th>작성자</th>
+            <th>작성일</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr>
+            <th>댓글번호</th>
+            <th>내용</th>
+            <th>작성자</th>
+            <th>작성일</th>
+        </tr>
+    </tfoot>
+</table>
+<!-- ↑↑↑ 댓글 ↑↑↑ -->
 <script>
   const bno = "${board.boardNo}";
   const replyer = "${logId}";
@@ -97,8 +88,4 @@
     location.href = 'deleteForm.do?bno=${board.boardNo}'; // 삭제화면 -> 삭제처리.
   }
 </script>
-<!-- 
-<script src="js/boardService.js"></script>
-<script src="js/board1.js"></script>
- -->
 <script src="js/board2.js"></script>

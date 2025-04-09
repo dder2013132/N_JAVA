@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+    <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles" %>
 <!DOCTYPE html>
@@ -25,6 +25,26 @@
       height: 0;
       width: 0;
     }
+    
+	#loader {
+	  border: 6px solid #f3f3f3;
+	  border-top: 6px solid #3498db;
+	  border-radius: 50%;
+	  width: 40px;
+	  height: 40px;
+	  animation: spin 1s linear infinite;
+	  margin: 20px auto;
+	}
+	
+	@keyframes spin {
+	  0% { transform: rotate(0deg); }
+	  100% { transform: rotate(360deg); }
+	}
+    
+    .loading {
+      margin: 0 auto;
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -38,6 +58,7 @@
       <tiles:insertAttribute name="header" />
       <!-- Page content-->
       <div class="container-fluid">
+	    <div id="loader" style="display: none;">🔄 불러오는 중...</div>
         <tiles:insertAttribute name="body" />
       </div>
     </div>

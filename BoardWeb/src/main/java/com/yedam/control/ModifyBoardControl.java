@@ -36,7 +36,7 @@ public class ModifyBoardControl implements Control {
 
 		// 목록이동.
 		if (r > 0) {
-			resp.sendRedirect("boardList.do?page=" + page);
+			resp.sendRedirect("boardList2.do?page=" + page);
 		} else {
 			System.out.println("수정오류.");
 		}

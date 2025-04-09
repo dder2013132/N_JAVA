@@ -5,12 +5,14 @@
 <configuration>
   <settings>
     <setting name="mapUnderscoreToCamelCase" value="true"/>
+    <setting name="jdbcTypeForNull" value="NULL"/>
   </settings>
   <typeAliases>
     <typeAlias alias="board" type="com.yedam.vo.BoardVO"/>
     <typeAlias alias="search" type="com.yedam.common.SearchDTO"/>
     <typeAlias alias="member" type="com.yedam.vo.MemberVO"/>
     <typeAlias alias="reply" type="com.yedam.vo.ReplyVO"/>
+    <typeAlias alias="event" type="com.yedam.vo.EventVO"/>
   </typeAliases>
   <environments default="development">
     <environment id="development">
@@ -27,5 +29,6 @@
     <mapper resource="com/yedam/mapper/BoardMapper.xml"/>
     <mapper resource="com/yedam/mapper/MemberMapper.xml"/>
     <mapper resource="com/yedam/mapper/ReplyMapper.xml"/>
+    <mapper resource="com/yedam/mapper/EventMapper.xml"/>
   </mappers>
 </configuration>

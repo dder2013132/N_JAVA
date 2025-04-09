@@ -7,7 +7,7 @@
     SELECT sepB.*
 	FROM   (SELECT rownum rn, allB.*
 	        FROM   (SELECT   *
-	                FROM     new_tbl_board
+	                FROM new_tbl_board
 	                <choose>
 	                   <when test="searchCondition == 'T'.toString()">
 		                WHERE title like '%'||#{keyword}||'%'
@@ -23,11 +23,13 @@
 	                   </when>
 	                </choose>
 	                ORDER BY board_no DESC) allB) sepB
-	WHERE sepB.rn >= (#{page} - 1) * 5 + 1
 	<![CDATA[
-	  AND sepB.rn <= (#{page} * 5)
 	]]>
   </select>
+  <!-- 
+	WHERE sepB.rn >= (#{page} - 1) * 5 + 1
+	  AND sepB.rn <= (#{page} * 5)
+   -->
   
   <!-- 등록 -->
   <insert id="insertBoard" parameterType="board">

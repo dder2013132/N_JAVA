@@ -1,7 +1,6 @@
 package com.yedam.control;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,33 +11,32 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.yedam.common.Control;
-import com.yedam.service.ReplyService;
-import com.yedam.service.ReplyServiceImpl;
-import com.yedam.vo.ReplyVO;
+import com.yedam.service.EventService;
+import com.yedam.service.EventServiceImpl;
+import com.yedam.vo.EventVO;
 
-public class AddReplyControl implements Control {
+public class AddEventControl implements Control {
 
     @Override
     public void exec(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/json; charset=utf-8");
-        String bno = req.getParameter("bno");
-        String replyer = req.getParameter("replyer");
-        String reply = req.getParameter("reply");
-        
-        ReplyVO rvo = new ReplyVO();
-        rvo.setBoardNo(Integer.parseInt(bno));
-        rvo.setReply(reply);
-        rvo.setReplyer(replyer);
-        rvo.setReplyDate(new Date());
+        String title = req.getParameter("title");
+        String start = req.getParameter("start");
+        String end = req.getParameter("end");
+
+        System.out.println(title + " " + start + " " + end);
+        EventVO evo = new EventVO();
+        evo.setTitle(title);
+        evo.setStart(start);
+        evo.setEnd(end);
         
         Gson gson = new GsonBuilder().create();
         Map<String, Object> map = new HashMap<>();
         
-        ReplyService svc = new ReplyServiceImpl();
-        if (svc.addReply(rvo)) {
+        EventService svc = new EventServiceImpl();
+        if (svc.addEvent(evo)) {
 //            resp.getWriter().print("{\"retCode\": \"OK\"}");
             map.put("retCode", "OK");
-            map.put("retVal", rvo);
         }
         else {
 //            resp.getWriter().print("{\"retCode\": \"NG\"}");
