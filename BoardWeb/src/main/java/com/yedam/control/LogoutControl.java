@@ -17,7 +17,7 @@ public class LogoutControl implements Control {
 		HttpSession session = req.getSession();
 		session.invalidate(); // 세션삭제.
 
-		resp.sendRedirect("main.do");
+		resp.sendRedirect("boardList.do");
 	}
 
 }

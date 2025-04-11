@@ -5,22 +5,33 @@
 <mapper namespace="com.yedam.mapper.EventMapper">
 	<select id="selectEvent" resultType="map">
 		SELECT title as "title",
-			   start_date as "start",
-			   end_date as "end"
-		FROM   tbl_event
+		start_date as "start",
+		end_date as "end"
+		FROM tbl_event
 	</select>
-	   <!-- 등록 -->
-    <insert id="insertEvent" parameterType="event">
-        insert into tbl_event (title, start_date, end_date)
-        values(#{title}, #{start}, #{end})
-    </insert>
+	<!-- 등록 -->
+	<insert id="insertEvent" parameterType="event">
+		insert into tbl_event (title, start_date, end_date)
+		values(#{title}, #{start}, #{end})
+	</insert>
 
 
-    <!-- 삭제 -->
-    <delete id="deleteEvent" parameterType="event">
-        delete from tbl_event
-        where title = #{title}
-          AND start_date = #{start}
-          AND end_date = #{end}
-    </delete>
+	<!-- 삭제 -->
+	<delete id="deleteEvent" parameterType="event">
+		delete from tbl_event
+		where title = #{title}
+		AND start_date = #{start}
+		AND end_date = #{end}
+	</delete>
+	<select id="selectWriter" resultType="map">
+		select   member_name as "userName", b.writer as "writer", count(1) as "cnt"
+		from     new_tbl_board b
+		join     new_tbl_member m
+		  on     b.writer = m.member_id
+		group by member_name, b.writer
+	</select>
+	<insert id="insertLogging" parameterType="map">
+		INSERT INTO tbl_logging(log_id, req_path, req_host)
+        VALUES (logging_seq.nextval, #{page}, #{host})
+	</insert>
 </mapper>

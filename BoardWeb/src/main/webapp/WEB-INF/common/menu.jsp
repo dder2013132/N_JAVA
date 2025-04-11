@@ -18,5 +18,6 @@
         <a class="list-group-item list-group-item-action list-group-item-light p-3" href="signForm.do">회원가입</a>
         <a class="list-group-item list-group-item-action list-group-item-light p-3" href="javascript.do">JS코드</a>
         <a class="list-group-item list-group-item-action list-group-item-light p-3" href="eventForm.do">일정</a>
+        <a class="list-group-item list-group-item-action list-group-item-light p-3" href="chart.do">차트</a>
     </div>
 </div>

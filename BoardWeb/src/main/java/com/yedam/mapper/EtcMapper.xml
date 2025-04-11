@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yedam.mapper.EtcMapper">
+  <!-- 목록. -->
+  <select id="selectEvent">
+    select title as "title"
+          ,start_date as "start"
+          ,end_date as "end"
+    from tbl_event
+  </select>
+
+  <insert id="insertEvent" parameterType="map">
+    insert into tbl_event
+    values (#{title}, #{start}, #{end})
+  </insert>
+  
+  <delete id="deleteEvent" parameterType="map">
+    delete from tbl_event
+    where title=#{title}
+    and   start_date=#{start}
+    and   end_date=#{end}
+  </delete>
+  
+  <!-- chart -->
+  <select id ="selectCntPerWriter" resultType="map">
+   select member_name as "memberName"
+   		, b.writer as "writer"
+   		, count(1) as "cnt"
+   from new_tbl_board b
+   join new_tbl_member m
+   on b.writer = m.member_id
+   group by member_name, b.writer
+  </select>
+  <!-- 로그정보 생성. -->
+  <insert id="insertLogging" parameterType="map">
+   insert into tbl_logging(log_id, req_path, req_host)
+   values(loggin_seq.nextval, #{page}, #{host})
+  </insert>
+</mapper>

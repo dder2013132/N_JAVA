@@ -6,9 +6,9 @@ import lombok.Data;
 
 @Data
 public class ReplyVO {
-    private int replyNo;
-    private String reply;
-    private String replyer;
-    private Date replyDate;
-    private int boardNo;
+	private int replyNo; //댓글번호
+	private String reply; //댓글내용.
+	private String replyer; //댓글작성자.
+	private Date replyDate; //댓글작성일시.
+	private int boardNo; //원본글번호.
 }

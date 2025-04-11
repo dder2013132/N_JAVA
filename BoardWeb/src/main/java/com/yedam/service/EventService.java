@@ -10,4 +10,6 @@ public interface EventService {
 	List<Map<String, Object>> eventList();
 	boolean addEvent(EventVO evo);
 	boolean removeEvent(EventVO evo);
+	List<Map<String, Object>> cntPerWriter();
+	boolean logCreate(Map<String, String> map);
 }

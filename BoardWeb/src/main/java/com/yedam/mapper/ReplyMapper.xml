@@ -5,62 +5,62 @@
 
 <mapper namespace="com.yedam.mapper.ReplyMapper">
 
-	<!-- 댓글목록. -->
-	<select id="selectList" resultType="reply" parameterType="search">
-		select b.reply_no
-		,b.reply
-		,b.replyer
-		,b.reply_date
-		,b.board_no
-		from (select /*+ INDEX_DESC(r reply_pk) */ rownum rn, r.*
-		from tbl_reply r
-		where board_no = #{boardNo}) b
-		where b.rn > (#{page} - 1) * 5 
+  <!-- 댓글목록. -->
+  <select id="selectList" resultType="reply" parameterType="search">
+  	select b.reply_no
+  	      ,b.reply
+  	      ,b.replyer
+  	      ,b.reply_date
+  	      ,b.board_no
+  	from  (select /*+ INDEX_DESC(r reply_pk) */ rownum rn, r.*
+  		   from tbl_reply r
+  		   where board_no = #{boardNo}) b
+  	where b.rn > (#{page} - 1) * 5 
   	<![CDATA[
   	and   b.rn <= #{page} * 5
   	]]>
-	</select>
-
-	<!-- 댓글건수. -->
-	<select id="selectReplyCnt" resultType="int" parameterType="int">
-		select count(1)
-		from tbl_reply
-		where board_no = #{boardNo}
-	</select>
-	<!-- 등록 -->
-	<insert id="insertReply" parameterType="reply">
-		<selectKey keyProperty="replyNo" resultType="int" order="BEFORE">
-			select reply_seq.nextval from dual
-		</selectKey>
-		insert into tbl_reply (reply_no, reply, replyer, board_no)
-		values(#{replyNo}, #{reply}, #{replyer},#{boardNo})
-	</insert>
-
-
-	<!-- 삭제 -->
-	<delete id="deleteReply" parameterType="int">
-		delete from tbl_reply
-		where reply_no = #{replyNo}
-	</delete>
-
-	<!-- 단건조회 -->
-	<select id="selectReply" resultType="reply" parameterType="int">
-		select reply_no
-		,reply
-		,replyer
-		,reply_date
-		,board_no
-		from tbl_reply
-		where reply_no = #{replyNo}
-	</select>
+  </select>
+  
+  <!-- 댓글건수. -->
+  <select id="selectReplyCnt" resultType="int" parameterType="int">
+   select count(1)
+   from tbl_reply
+   where board_no = #{boardNo}
+  </select>
+  <!-- 등록 -->
+  <insert id="insertReply" parameterType="reply">
+    <selectKey keyProperty="replyNo" resultType="int" order="BEFORE">
+     select reply_seq.nextval from dual
+    </selectKey>
+  	insert into tbl_reply (reply_no, reply, replyer, board_no)
+	values(#{replyNo}, #{reply}, #{replyer},#{boardNo})
+  </insert>
 
 
-	<!-- Datatable용. -->
-	<select id="selectListForDT" parameterType="int" resultType="map">
-		select /*+ INDEX_DESC(r reply_pk) */ r.*
-		from tbl_reply r
-		where board_no = #{boardNo}
-	</select>
+  <!-- 삭제 -->
+  <delete id="deleteReply" parameterType="int">
+  	delete from tbl_reply
+  	where reply_no = #{replyNo}
+  </delete>
+  
+  <!-- 단건조회 -->
+  <select id="selectReply" resultType="reply" parameterType="int">
+  	select reply_no
+  	      ,reply
+  	      ,replyer
+  	      ,reply_date
+  	      ,board_no
+  	from tbl_reply
+  	where reply_no = #{replyNo}
+  </select>
+  
+  
+  <!-- Datatable용.  -->
+  <select id="selectListForDT" parameterType="int" resultType="map">
+  select /*+ INDEX_DESC(r reply_pk) */ r.*
+  from tbl_reply r
+  where board_no = #{boardNo}
+</select>
 </mapper>
 
 

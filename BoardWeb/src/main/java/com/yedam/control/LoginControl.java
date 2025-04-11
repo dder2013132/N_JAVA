@@ -26,7 +26,8 @@ public class LoginControl implements Control {
 
 		if (mvo == null) {
 			req.setAttribute("msg", "아이디와 비밀번호를 확인하세요.");
-			req.getRequestDispatcher("WEB-INF/views/member/loginForm.jsp").forward(req, resp);
+			req.getRequestDispatcher("WEB-INF/views/member/loginForm.jsp")//
+					.forward(req, resp);
 		} else {
 			// 로그인성공 => 세션객체. 로그인정보저장.
 			HttpSession session = req.getSession();
@@ -36,10 +37,9 @@ public class LoginControl implements Control {
 			session.setAttribute("img", mvo.getImages());
 
 			if (mvo.getMemberResponsibility().equals("User")) {
-//				resp.sendRedirect("boardList.do");
-				req.getRequestDispatcher("etc/main.tiles").forward(req, resp);
+			    req.getRequestDispatcher("etc/main.tiles").forward(req, resp);
 			} else if (mvo.getMemberResponsibility().equals("Admin")) {
-				req.getRequestDispatcher("manager/main.tiles").forward(req, resp);
+			    req.getRequestDispatcher("manager/main.tiles").forward(req, resp);
 			}
 		}
 

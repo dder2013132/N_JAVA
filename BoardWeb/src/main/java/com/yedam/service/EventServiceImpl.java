@@ -35,4 +35,16 @@ public class EventServiceImpl implements EventService{
         return mapper.deleteEvent(evo) > 0;
     }
 
+    @Override
+    public List<Map<String, Object>> cntPerWriter() {
+        // TODO Auto-generated method stub
+        return mapper.selectWriter();
+    }
+
+    @Override
+    public boolean logCreate(Map<String, String> map) {
+        // TODO Auto-generated method stub
+        return mapper.insertLogging(map) > 0;
+    }
+
 }
